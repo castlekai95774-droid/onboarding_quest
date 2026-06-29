@@ -1,118 +1,41 @@
-# Stellar Notes DApp
+# onboarding_quest
 
-**Stellar Notes DApp** - Blockchain-Based Decentralized Note-Taking System
+## Project Title
+onboarding_quest
 
 ## Project Description
-
-Stellar Notes DApp is a decentralized smart contract solution built on the Stellar blockchain using Soroban SDK. It provides a secure, immutable platform for managing personal notes directly on the blockchain. The contract ensures that your data is stored transparently and is only manageable through predefined smart contract functions, eliminating reliance on centralized database providers.
-
-The system allows users to create, view, and delete notes, leveraging the efficiency and security of the Stellar network. Each note is uniquely identified and stored within the contract's instance storage, ensuring data persistence and reliability.
+Welcoming new members into a Web3 community is usually a mess of DMs, screenshots, and trust-based checklists that nobody can audit. `onboarding_quest` turns that flow into a transparent, on-chain quest: an admin defines a sequence of steps (introduce yourself, join the Discord, attend a town hall, mint a profile NFT, ...), every new member submits a proof hash for each step, and the admin verifies the proofs. Once all required steps are verified, the member is automatically promoted to the "Onboarded" status and can claim a one-time reward recorded on Stellar — with no spreadsheets and no "did they actually do the work?" arguments.
 
 ## Project Vision
-
-Our vision is to revolutionize personal productivity in the digital age by:
-
-- **Decentralizing Data**: Moving note-taking from centralized servers to a global, distributed blockchain
-- **Ensuring Ownership**: Empowering users to have complete control and ownership over their digital thoughts and information
-- **Guaranteeing Immutability**: Providing a permanent, tamper-proof record of notes that cannot be altered or deleted by third parties
-- **Enhancing Privacy**: Leveraging blockchain security to protect personal information from unauthorized access
-- **Building Trustless Systems**: Creating a platform where data integrity is guaranteed by code, not by company promises
-
-We envision a future where digital information is truly personal and sovereign, empowering individuals with complete autonomy over their digital assets.
+Our long-term vision is to make community onboarding as trustworthy, portable, and reusable as a smart contract. By encoding the quest on Stellar via Soroban, every community — DAOs, university clubs, hackathon crews, open-source maintainers — can run the same auditable onboarding flow without running their own backend, and members get a portable, on-chain record of the work they've completed. We want `onboarding_quest` to become the default "first contract" a community deploys, the way a guestbook or a faucet is today.
 
 ## Key Features
+- **Admin-managed quest steps** — `add_step` lets a single community admin register an arbitrary number of steps, each tagged as `required` or `optional`, with the human-readable description kept off-chain and pinned by a SHA-256 hash.
+- **Proof-of-completion submissions** — `complete_step` lets any member attach a `proof_hash` (screenshot, signed message, off-chain artifact hash) to the steps they have done. The contract stores who, when, and what — no central server needed.
+- **Admin verification with auto-promotion** — `verify_step` confirms a member's proof, and the contract automatically flips the member to the `Onboarded` status the moment the last required step is verified.
+- **One-time Onboarded reward claim** — `claim_reward` lets a fully onboarded member record their reward on chain; a `reward` event is emitted so off-chain indexers, dashboards, and bots can react in real time.
+- **Transparent progress views** — `is_onboarded`, `progress`, `get_step`, `get_completion`, and `step_count` expose the full state of the quest, so members and observers can verify everything without privileged access.
+- **Auth-safe by design** — every state-changing function uses Soroban `require_auth()`, admin-only operations are guarded by an on-chain `Admin` key, and no real XLM transfer is ever performed (the reward is recorded, not paid out, by the contract itself).
 
-### 1. **Simple Note Creation**
+## Contract
 
-- Create notes with just one function call
-- Specify title and content for each note
-- Automated ID generation for unique identification
-- Persistent storage on the Stellar blockchain
-
-### 2. **Efficient Data Retrieval**
-
-- Fetch all stored notes in a single call
-- Structured data representation for easy frontend integration
-- Quick access to your entire note collection
-- Real-time synchronization with the blockchain state
-
-### 3. **Secure Deletion**
-
-- Remove specific notes using their unique IDs
-- Permanent removal from the contract storage
-- Clean and efficient storage management
-- Immediate update of the note list after deletion
-
-### 4. **Transparency and Security**
-
-- View all note activities on the blockchain
-- Blockchain-based verification of all storage actions
-- Immutable records of note creation and deletion
-- Protected against unauthorized modifications
-
-### 5. **Stellar Network Integration**
-
-- Leverages the high speed and low cost of Stellar
-- Built using the modern Soroban Smart Contract SDK
-- Scalable architecture for growing note collections
-- Interoperable with other Stellar-based services
-
-## Contract Details
-
-- Contract Address: CBLU4IUASQ4WUMOXBFLZRSBBLILGOH33GS4LUPKFBCCCMJCDQNMF7G2M
-  (Screenshot has been removed)
+- **Network:** Stellar Testnet (Public)
+- **Scope:** community dApp — see `contracts/onboarding_quest/src/lib.rs` for the full onboarding_quest business logic.
+- **Functions exposed:** see `Key Features` above and the `pub fn` list in `lib.rs`.
+- **Contract ID:** `CAAQZOMIZYJ2D4VXAXFCL2AITDJ4YMTH3NVCI564YDRJ44FE64DJR6WN`
+- **Explorer template:** `https://stellar.expert/explorer/testnet/tx/be02c8f5baed1e9464d1a35191dda90cc02770b769534513eb963e57a0097178`
 
 ## Future Scope
+- **On-chain reward payouts** — wrap `claim_reward` in a token transfer (native XLM or a community-specific SAC) so the reward is actually delivered, not just recorded.
+- **Multi-admin / role-based verification** — add a `Verifier` role so verification can be split across moderators instead of a single `Admin` key.
+- **Step deadlines & streaks** — let admins attach `opens_at` / `closes_at` timestamps to steps, and reward members who complete the full quest within a window.
+- **Off-chain proof verification hooks** — support `proof_hash` formats that resolve to verifiable attestations (e.g. signed GitHub/Discord/JumpClub messages) verified by the contract itself.
+- **Frontend dashboard** — a small React/Freighter UI that lists the current quest, shows a member's `progress`, and surfaces `reward` events for community analytics.
+- **Reusable quest templates** — export/import quest definitions so communities can fork and tweak onboarding flows without redeploying from scratch.
+- **Soulbound Onboarded NFT** — issue a non-transferable credential token (a SAC with `auth_revocable` / clawback-friendly design) as a portable, verifiable proof of completion.
 
-### Short-Term Enhancements
+## Profile
 
-1. **Note Encryption**: Support for end-to-end encryption of note content for enhanced privacy
-2. **Category Management**: Add tags and categories to organize notes efficiently
-3. **Rich Text Support**: Extend support beyond plain text to include Markdown and formatted content
-4. **Search Functionality**: Implement advanced search filters for large note collections
-
-### Medium-Term Development
-
-5. **Collaborative Notes**: Implement multi-signature requirements for shared or collaborative note-taking
-   - Shared access for multiple addresses
-   - Permission-based editing and viewing
-   - Version history tracking
-6. **Notification System**: Off-chain bridge to alert users of new updates or shared notes
-7. **Asset Attachment**: Capability to attach digital assets or tokens to specific notes
-8. **Inter-Contract Integration**: Allow other smart contracts to interact with and store data in the notes contract
-
-### Long-Term Vision
-
-9. **Cross-Chain Synchronization**: Extend note storage to multiple blockchain networks
-10. **Decentralized UI Hosting**: Host the frontend on IPFS or similar decentralized platforms
-11. **AI-Powered Summarization**: Optional integration with AI to help users summarize their notes
-12. **Privacy Layers**: Implement zero-knowledge proofs for completely private note content
-13. **DAO Governance**: Community-driven protocol improvements and feature prioritization
-14. **Identity Management**: Integration with decentralized identity (DID) systems for user management
-
-### Enterprise Features
-
-15. **Corporate Documentation**: Adapt the system for secure corporate record-keeping
-16. **Immutable Logging**: Create time-locked logs for audit purposes
-17. **Automated Reporting**: Automatic note triggers for periodic reporting
-18. **Multi-Language Support**: Expand accessibility with internationalization
-
----
-
-## Technical Requirements
-
-- Soroban SDK
-- Rust programming language
-- Stellar blockchain network
-
-## Getting Started
-
-Deploy the smart contract to Stellar's Soroban network and interact with it using the three main functions:
-
-- `create_note()` - Create a new note with a title and content
-- `get_notes()` - Retrieve all stored notes from the contract
-- `delete_note()` - Remove a specific note by its ID
-
----
-
-**Stellar Notes DApp** - Securing Your Thoughts on the Blockchain
+- **Name:** <!-- Fill github name -->
+- **Project:** `onboarding_quest` (community)
+- **Built with:** Soroban SDK 25, Rust, Stellar Testnet
